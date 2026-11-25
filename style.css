@@ -1058,3 +1058,17 @@ button:hover {
     }
 
 }
+.back-home {
+    background: #eaf5fa;
+    color: #397c9c;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.back-home:hover {
+    background: #d8edf6;
+}

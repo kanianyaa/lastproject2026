@@ -1089,20 +1089,15 @@
 
     <header class="material-header">
 
-        <button class="back-button" onclick="goDashboard()">
-            ←
-        </button>
+    <button class="back-button" onclick="goDashboard()">
+        ←
+    </button>
 
-        <div class="brand">
-            <span class="brand-icon">∑</span>
-            <span>Mathify</span>
-        </div>
-
-        <button class="home-button" onclick="goHome()">
-            ⌂
-        </button>
-
-    </header>
+    <div class="brand">
+        <span class="brand-icon">∑</span>
+        <span>Mathify</span>
+    </div>
+   </header>
 
 
     <main class="material-content">
@@ -1241,7 +1236,6 @@
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
 const pageIds = [
 
@@ -1297,29 +1291,17 @@ function showPage(id, display = "block") {
     }
 
 }
-
 function startLearning() {
-
     showPage("dashboardPage");
-
 }
-
 function goHome() {
-
     showPage("landingPage", "flex");
-
 }
-
 function goDashboard() {
-
     showPage("dashboardPage");
-
 }
-
 function goMaterial() {
-
     showPage("materialPage");
-
 }
 
 function openMaterial(menu) {
@@ -1336,12 +1318,11 @@ function openMaterial(menu) {
     const destination = destinations[menu];
 
     if (destination) {
-
         showPage(destination);
-
     }
 
 }
+
 function openTopic(topic) {
 
     const validTopics = [
@@ -1360,16 +1341,13 @@ function openTopic(topic) {
     ];
 
     if (validTopics.includes(topic)) {
-
         showPage(topic);
-
     }
 
 }
+
 document.addEventListener("DOMContentLoaded", function() {
-
     showPage("landingPage", "flex");
-
 });
 
 </script>

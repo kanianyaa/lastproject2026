@@ -66,12 +66,7 @@ const questions = [
     },
     {
         question: "Akar-akar persamaan x² - 5x + 6 = 0 adalah ...",
-        options: [
-            "1 dan 6",
-            "2 dan 3",
-            "-2 dan -3",
-            "1 dan 5"
-        ],
+        options: ["1 dan 6", "2 dan 3", "-2 dan -3", "1 dan 5"],
         answer: 1
     },
     {
@@ -81,12 +76,7 @@ const questions = [
     },
     {
         question: "Hasil dari ∫ 2x dx adalah ...",
-        options: [
-            "x² + C",
-            "2x² + C",
-            "x + C",
-            "2 + C"
-        ],
+        options: ["x² + C", "2x² + C", "x + C", "2 + C"],
         answer: 0
     },
     {
@@ -136,12 +126,7 @@ const questions = [
     },
     {
         question: "Hasil dari (x + 3)(x + 2) adalah ...",
-        options: [
-            "x² + 5x + 6",
-            "x² + 6x + 5",
-            "x² + x + 6",
-            "x² + 5"
-        ],
+        options: ["x² + 5x + 6", "x² + 6x + 5", "x² + x + 6", "x² + 5"],
         answer: 0
     },
     {
@@ -165,10 +150,18 @@ const questions = [
         answer: 2
     }
 ];
+
+const QUESTIONS_PER_ATTEMPT = 10;
+const MAX_ATTEMPTS = 3;
+const POINTS_PER_CORRECT = 10;
+
+let selectedQuestions = [];
 let currentQuestion = 0;
 let score = 0;
 let answered = false;
 let quizFinished = false;
+let attemptCount = 0;
+let attemptScores = [];
 
 const questionElement = document.getElementById("question");
 const optionsElement = document.getElementById("options");
@@ -178,16 +171,42 @@ const feedbackElement = document.getElementById("feedback");
 const checkButton = document.getElementById("checkButton");
 const nextButton = document.getElementById("nextButton");
 
+function shuffleArray(array) {
+    const shuffled = [...array];
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    return shuffled;
+}
+
+function startQuiz() {
+    if (attemptCount >= MAX_ATTEMPTS) return;
+
+    attemptCount++;
+    selectedQuestions = shuffleArray(questions).slice(0, QUESTIONS_PER_ATTEMPT);
+
+    currentQuestion = 0;
+    score = 0;
+    answered = false;
+    quizFinished = false;
+
+    nextButton.textContent = "Soal Berikutnya";
+    showQuestion();
+}
+
 function showQuestion() {
     answered = false;
     quizFinished = false;
 
-    const q = questions[currentQuestion];
+    const q = selectedQuestions[currentQuestion];
 
     numberElement.textContent =
-        `Soal ${currentQuestion + 1} dari ${questions.length}`;
+        `Percobaan ${attemptCount} dari ${MAX_ATTEMPTS} | Soal ${currentQuestion + 1} dari ${QUESTIONS_PER_ATTEMPT}`;
 
-    scoreElement.textContent = `Skor: ${Math.round(score)}`;
+    scoreElement.textContent = `Skor: ${score}`;
 
     questionElement.textContent = q.question;
 
@@ -213,7 +232,7 @@ function showQuestion() {
 }
 
 checkButton.addEventListener("click", function() {
-    if (answered) return;
+    if (answered || quizFinished) return;
 
     const selected = document.querySelector(
         'input[name="answer"]:checked'
@@ -229,55 +248,46 @@ checkButton.addEventListener("click", function() {
     answered = true;
 
     const userAnswer = Number(selected.value);
-    const correctAnswer = questions[currentQuestion].answer;
+    const correctAnswer = selectedQuestions[currentQuestion].answer;
 
     if (userAnswer === correctAnswer) {
-        score += 100 / questions.length;
+        score += POINTS_PER_CORRECT;
 
-        feedbackElement.textContent =
-            "Benar! Jawabanmu tepat.";
-
+        feedbackElement.textContent = "Benar! Jawabanmu tepat.";
         feedbackElement.style.color = "#16a34a";
     } else {
         feedbackElement.textContent =
             `Belum tepat. Jawaban yang benar adalah ${
                 String.fromCharCode(65 + correctAnswer)
-            }. ${questions[currentQuestion].options[correctAnswer]}`;
+            }. ${selectedQuestions[currentQuestion].options[correctAnswer]}`;
 
         feedbackElement.style.color = "#dc2626";
     }
 
-    scoreElement.textContent = `Skor: ${Math.round(score)}`;
+    scoreElement.textContent = `Skor: ${score}`;
 
-    document.querySelectorAll(
-        'input[name="answer"]'
-    ).forEach(input => {
+    document.querySelectorAll('input[name="answer"]').forEach(input => {
         input.disabled = true;
     });
 
     checkButton.style.display = "none";
     nextButton.style.display = "inline-block";
 
-    if (currentQuestion === questions.length - 1) {
-        nextButton.textContent = "Lihat Hasil";
-    } else {
-        nextButton.textContent = "Soal Berikutnya";
-    }
+    nextButton.textContent =
+        currentQuestion === QUESTIONS_PER_ATTEMPT - 1
+            ? "Lihat Hasil"
+            : "Soal Berikutnya";
 });
 
 nextButton.addEventListener("click", function() {
-
     if (quizFinished) {
-        currentQuestion = 0;
-        score = 0;
-        quizFinished = false;
-
-        nextButton.textContent = "Soal Berikutnya";
-        showQuestion();
+        if (attemptCount < MAX_ATTEMPTS) {
+            startQuiz();
+        }
         return;
     }
 
-    if (currentQuestion < questions.length - 1) {
+    if (currentQuestion < QUESTIONS_PER_ATTEMPT - 1) {
         currentQuestion++;
         showQuestion();
     } else {
@@ -288,9 +298,12 @@ nextButton.addEventListener("click", function() {
 function showResult() {
     quizFinished = true;
 
-    const finalScore = Math.round(score);
+    const finalScore = score;
+    attemptScores.push(finalScore);
 
-    numberElement.textContent = "Kuis Selesai";
+    numberElement.textContent =
+        `Percobaan ${attemptCount} selesai`;
+
     scoreElement.textContent = `Skor: ${finalScore}`;
 
     questionElement.textContent =
@@ -305,9 +318,20 @@ function showResult() {
             ? "Bagus! Terus tingkatkan kemampuanmu."
             : "Tetap semangat! Coba pelajari materinya lagi.";
 
+    if (attemptCount < MAX_ATTEMPTS) {
+        nextButton.textContent = "Ulangi Kuis";
+        nextButton.style.display = "inline-block";
+    } else {
+        questionElement.textContent +=
+            ` Kamu sudah menyelesaikan ${MAX_ATTEMPTS} percobaan.`;
+
+        feedbackElement.textContent +=
+            ` Skor percobaan: ${attemptScores.join(", ")}.`;
+
+        nextButton.style.display = "none";
+    }
+
     checkButton.style.display = "none";
-    nextButton.textContent = "Ulangi Kuis";
-    nextButton.style.display = "inline-block";
 }
 
-showQuestion();
+startQuiz();

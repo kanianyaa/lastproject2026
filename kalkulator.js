@@ -1,4 +1,3 @@
-
 let expression = "";
 let isDegree = true;
 
